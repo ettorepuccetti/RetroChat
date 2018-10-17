@@ -17,8 +17,9 @@ import org.apache.zookeeper.ZooKeeper.States;
 import org.apache.zookeeper.data.Stat;
 
 public class ZooManager {
+    static ZooKeeper zoo;
 
-    void setUpTree (ZooKeeper zoo) throws KeeperException, InterruptedException {
+    void setUpTree () throws KeeperException, InterruptedException {
         zoo.create(("/request"), null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
         zoo.create(("/request/enroll"), null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
         zoo.create(("/request/quit"), null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
@@ -27,7 +28,7 @@ public class ZooManager {
 
     }
 
-    void Register (ZooKeeper zoo) throws KeeperException, InterruptedException {
+    void Register () throws KeeperException, InterruptedException {
         Stat stat = zoo.exists("/request/enroll", true) ;
         if (stat != null) {
             zoo.getChildren("/request/enroll", new RegisterWatcher());
@@ -39,8 +40,20 @@ public class ZooManager {
         public void process(WatchedEvent we) {
             if (we.getType() == EventType.NodeChildrenChanged) {
                 System.out.println("children created");
-                
-                
+                List<String> children;
+                try {
+                    children = zoo.getChildren("/request/enroll", new RegisterWatcher());
+                    for (int i = 0; i < children.size(); i++) {
+                        String child = children.get(i);
+                        String[] w_id = child.split(":");
+                        zoo.create("/registry/" + w_id[0],null,ZooDefs.Ids.OPEN_ACL_UNSAFE,CreateMode.PERSISTENT);
+                    } 
+                } catch (KeeperException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }       
+            }
         }
     }
 
@@ -56,49 +69,22 @@ public class ZooManager {
     }
     
     static CountDownLatch timeout = new CountDownLatch(1);
-    public static void main(String[] args) throws IOException, InterruptedException {
-       
-        ZooKeeper zoo = new ZooKeeper("localhost", 1000, new Watcher() {
+    public static void main(String[] args) throws IOException, InterruptedException, KeeperException {
+    
+        zoo = new ZooKeeper("localhost", 1000, new Watcher(){
             public void process(WatchedEvent we) {
                 if (we.getState() == KeeperState.SyncConnected) {
                     timeout.countDown();
                 }
             }
         });
-
+        
         timeout.await(100, TimeUnit.MILLISECONDS);
         States state = zoo.getState();
         System.out.println(state);
 
-        try {
-            zoo.create(("/master"), null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-            System.out.println(zoo.exists("/master/subnode1", new myWatcher()));
-            zoo.create(("/master/subnode1"), null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-            Stat stat = zoo.exists("/master", false);
-            System.out.println(stat);
-            int version = zoo.exists("/master", true).getVersion();
-            zoo.setData("/master", "my data".getBytes(), version);
-            byte[] data = zoo.getData("/master", new myWatcher(), null);
-            String data_str = new String(data, "UTF-8");
-            System.out.println(data_str);
-            int version_new = zoo.exists("/master", true).getVersion();
-            List<String> child = zoo.getChildren("/master", new myWatcher());
-            System.out.println(child);
-            zoo.delete("/master/subnode1", -1);
-            zoo.delete("/master", version_new);
-            zoo.close();
-        } catch (KeeperException e) {
-            e.printStackTrace();
-            try {
-                zoo.delete("/master", -1);
-            } catch (KeeperException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-            }
-            zoo.close();
-        } catch (InterruptedException e) {
-            zoo.close();
-            return;
-        }
+        ZooManager mng = new ZooManager();
+        mng.setUpTree();
+        mng.Register();
     }
 }
