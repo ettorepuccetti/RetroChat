@@ -40,6 +40,38 @@ public class ZooWorker {
        }
     }
 
+    public void createNew(ZooKeeper zoo){
+        try {
+            zoo.create("/request/enroll/w_id:-1", null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+            Thread.sleep(2000);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    public void watch(ZooKeeper zoo){
+        try {
+            while (true){
+                System.out.println(zoo.getChildren("/request/enroll", true));
+                //zoo.exists("/request/enroll/w_id:-1",  new myWatcher());
+                if(zoo.exists("/request/enroll/w_id:-1",  new myWatcher()) != null){
+                    System.out.println("-1 child exists");
+                }
+                else if(zoo.exists("/request/enroll/w_id:1",  new myWatcher()) != null){
+                    zoo.delete("/request/enroll/w_id:1", -1);
+                }
+                else if(zoo.exists("/request/enroll/w_id:2",  new myWatcher()) != null ){
+                    zoo.delete("/request/enroll/w_id:2", -1);
+                }
+                //zooWorker.run();
+                break;
+            }
+            //int version_new = zoo.exists("/master", true).getVersion();
+            zoo.delete("/request/enroll/w_id:-1", -1);
+            zoo.close();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
     static CountDownLatch timeout = new CountDownLatch(1);
     public static void main(String[] args) throws IOException, InterruptedException {
@@ -52,26 +84,7 @@ public class ZooWorker {
         });
         timeout.await(100, TimeUnit.MILLISECONDS);
         ZooWorker zooWorker = new ZooWorker();
-        try {
-            zooWorker.run();
-            zoo.create("/request/enroll/w_id:-1", null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
-            Thread.sleep(2000);
-            while (true){
-                System.out.println(zoo.getChildren("/request/enroll", true));
-                //zoo.exists("/request/enroll/w_id:-1",  new myWatcher());
-                if(zoo.exists("/request/enroll/w_id:-1",  new myWatcher()) != null){
-                    System.out.println("-1 child exists");
-                }
-                break;
-            }
-            //int version_new = zoo.exists("/master", true).getVersion();
-            zoo.delete("/request/enroll/w_id:-1", -1);
-            zoo.close();
-
-
-        }catch (KeeperException e){
-            e.printStackTrace();
-        }
-
+        zooWorker.createNew(zoo);
+        zooWorker.watch(zoo);
     }
 }
