@@ -6,6 +6,17 @@
     "configurations": [
         {
             "type": "java",
+            "name": "CodeLens (Launch) - ZooManager",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "stopOnEntry": false,
+            "mainClass": "master.eit.ZooManager",
+            "args": "",
+            "projectName": "zkexamples"
+        },
+        {
+            "type": "java",
             "name": "CodeLens (Launch) - zooWorker",
             "request": "launch",
             "cwd": "${workspaceFolder}",
