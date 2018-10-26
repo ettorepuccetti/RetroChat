@@ -16,7 +16,7 @@ import org.apache.zookeeper.Watcher.Event.KeeperState;
 import org.apache.zookeeper.ZooKeeper.States;
 import org.apache.zookeeper.data.Stat;
 
-public class ZooManager implements Watcher, Runnable {
+public class ZooManager implements Runnable, Watcher {
     
     CountDownLatch timeout = new CountDownLatch(1);
     ZooKeeper zoo;
@@ -52,37 +52,6 @@ public class ZooManager implements Watcher, Runnable {
         zoo.create(("/online"), null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
     }
 
-    public void register () throws KeeperException, InterruptedException {
-        Stat stat_exist = zoo.exists("/request/enroll", true) ;
-        if (stat_exist != null) {
-            List<String> children;
-            try {
-                children = zoo.getChildren("/request/enroll", this);
-                for (int i = 0; i < children.size(); i++) {
-                    String child = children.get(i);
-                    String[] w_id = child.split(":");
-                    System.out.println(child);
-                    System.out.println(w_id[0]);
-                    Stat stat = zoo.exists("/registry/" + w_id[0], null);
-                    if (stat == null) {
-                        zoo.create("/registry/" + w_id[0],null,ZooDefs.Ids.OPEN_ACL_UNSAFE,CreateMode.PERSISTENT);
-                        int last_version = zoo.exists("/requerst/enroll/"+child, true).getVersion();
-                        zoo.delete("request/enroll" + child, last_version);
-                        zoo.create("/request/enroll" + w_id[0] + ":1", null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-                    } else {
-                        int last_version = zoo.exists("/requerst/enroll/"+child, true).getVersion();
-                        zoo.delete("request/enroll" + child, last_version);
-                        zoo.create("/request/enroll" + w_id[0] + ":2", null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-                    }
-                }
-            } catch (KeeperException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }       
-        }
-    }
-
     public void process(WatchedEvent we) {
         System.out.println("Watcher triggered !!");
         if (we.getType() == EventType.NodeChildrenChanged) {
@@ -98,16 +67,56 @@ public class ZooManager implements Watcher, Runnable {
         } 
     }
 
+    public void register () throws KeeperException, InterruptedException {
+        Stat stat_exist = zoo.exists("/request/enroll", true) ;
+        if (stat_exist != null) {
+            List<String> children;
+            try {
+                children = zoo.getChildren("/request/enroll", this);
+                for (int i = 0; i < children.size(); i++) {
+                    String child = children.get(i);
+                    byte[] bdata = zoo.getData("/request/enroll/" + child, true, null);
+                    String data = new String(bdata, "UTF-8");
+                    if (data.equals(new String("-1"))) {
+                        int version_request = zoo.exists("/request/enroll", true).getVersion();
+                        try {
+                            Stat stat_is_register = zoo.exists("/registry/" + child, true);
+                            if (stat_is_register == null) {
+                                zoo.create("/registry/" + child, null, ZooDefs.Ids.OPEN_ACL_UNSAFE,CreateMode.PERSISTENT);
+                                zoo.setData("/request/enroll/" + child, "1".getBytes(), version_request);
+                            }
+                            else {
+                                zoo.setData("/request/enroll/" + child, "2".getBytes(), version_request);                                
+                            }
+                        } catch (KeeperException e){
+                            zoo.setData("/request/enroll/" + child, "0".getBytes(), version_request);
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            } catch (KeeperException e) {
+                e.printStackTrace();
+            }
+            catch (InterruptedException e) {
+                e.printStackTrace();
+            }  
+            catch (Exception e ) {
+                e.printStackTrace();
+            }   
+        }
+    }
+
     
     public static void main(String[] args) throws IOException, InterruptedException, KeeperException {
-
+        
         ZooManager zm = new ZooManager();
+        Thread thread = new Thread(zm);
         zm.register();
-        zm.run();
+        thread.start();
     }
 
     public void run() {
-        try { 
+        try {
             synchronized (this) {
                 while(true) {
                     wait();
