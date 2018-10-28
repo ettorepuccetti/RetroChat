@@ -1,4 +1,4 @@
-package master.eit;
+package master.eit.manager;
 
 import java.io.IOException;
 import java.util.List;
@@ -11,12 +11,11 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.ZooKeeper;
-import org.apache.zookeeper.Watcher.Event.EventType;
 import org.apache.zookeeper.Watcher.Event.KeeperState;
 import org.apache.zookeeper.ZooKeeper.States;
 import org.apache.zookeeper.data.Stat;
 
-public class ZooManager implements Runnable, Watcher {
+public class ZooManager implements Runnable {
     
     CountDownLatch timeout = new CountDownLatch(1);
     ZooKeeper zoo;
@@ -52,27 +51,17 @@ public class ZooManager implements Runnable, Watcher {
         zoo.create(("/online"), null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
     }
 
-    public void process(WatchedEvent we) {
-        System.out.println("Watcher triggered !!");
-        if (we.getType() == EventType.NodeChildrenChanged) {
-            try {
-                register();
-            } catch (KeeperException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        } 
-    }
 
     public void register () throws KeeperException, InterruptedException {
         Stat stat_exist = zoo.exists("/request/enroll", true) ;
         if (stat_exist != null) {
-            List<String> children;
             try {
-                children = zoo.getChildren("/request/enroll", this);
+                List<String> children;
+                RegisterWatcher rw = new RegisterWatcher(this);
+                Thread rwThread = new Thread(rw);
+                rwThread.setName("register watcher");
+                rwThread.start();
+                children = zoo.getChildren("/request/enroll", rw);
                 for (int i = 0; i < children.size(); i++) {
                     String child = children.get(i);
                     byte[] bdata = zoo.getData("/request/enroll/" + child, true, null);
@@ -106,24 +95,18 @@ public class ZooManager implements Runnable, Watcher {
         }
     }
 
-    
-    public static void main(String[] args) throws IOException, InterruptedException, KeeperException {
-        
-        ZooManager zm = new ZooManager();
-        Thread thread = new Thread(zm);
-        zm.register();
-        thread.start();
-    }
-
     public void run() {
         try {
+            register();
             synchronized (this) {
                 while(true) {
                     wait();
                 }
             }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (KeeperException e1) {
+            e1.printStackTrace();
+        } catch (InterruptedException e1) {
+            e1.printStackTrace();
             Thread.currentThread().interrupt();
         }
     }
