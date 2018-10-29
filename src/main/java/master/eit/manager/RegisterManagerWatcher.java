@@ -9,21 +9,21 @@ import org.apache.zookeeper.Watcher.Event.EventType;
 
 
 
-public class RegisterWatcher implements Watcher, Runnable {
+public class RegisterManagerWatcher implements Watcher, Runnable {
 
     ZooManager zm;
     CountDownLatch onetime = new CountDownLatch(1);
 
 
-    public RegisterWatcher(ZooManager zoo) {
+    public RegisterManagerWatcher(ZooManager zoo) {
         this.zm = zoo;
-        System.out.println("Watcher set");
+        System.out.println("Manager Watcher set");
 
     }
 
     public void process(WatchedEvent we) {
         if (we.getType() == EventType.NodeChildrenChanged) {
-            System.out.println("Watcher triggered !!");
+            System.out.println("Manager Watcher triggered !!");
             try {
                 zm.register();
             } catch (KeeperException e) {
@@ -42,7 +42,7 @@ public class RegisterWatcher implements Watcher, Runnable {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-            System.out.println("Watcher thread ends");
+            System.out.println("Manager Watcher thread ends");
         }
     }
 }

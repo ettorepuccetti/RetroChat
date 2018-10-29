@@ -57,7 +57,7 @@ public class ZooManager implements Runnable {
         if (stat_exist != null) {
             try {
                 List<String> children;
-                RegisterWatcher rw = new RegisterWatcher(this);
+                RegisterManagerWatcher rw = new RegisterManagerWatcher(this);
                 Thread rwThread = new Thread(rw);
                 rwThread.setName("register watcher");
                 rwThread.start();
