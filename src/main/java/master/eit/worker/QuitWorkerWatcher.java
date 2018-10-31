@@ -1,31 +1,27 @@
 package master.eit.worker;
 
-import java.util.concurrent.CountDownLatch;
-
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
-import org.apache.zookeeper.Watcher.Event.EventType;
 
+import java.util.concurrent.CountDownLatch;
 
-
-public class RegisterWorkerWatcher implements Watcher, Runnable {
-
+public class QuitWorkerWatcher implements Watcher, Runnable {
     ZooWorker zw;
     public CountDownLatch onetime = new CountDownLatch(1);
 
 
-    public RegisterWorkerWatcher(ZooWorker zoo) {
+    public QuitWorkerWatcher(ZooWorker zoo) {
         this.zw = zoo;
-        System.out.println("Register Worker Watcher set");
+        System.out.println("Quit worker watcher set");
 
     }
 
     public void process(WatchedEvent we) {
-        if (we.getType() == EventType.NodeDataChanged) {
-            System.out.println("Register Worker Watcher triggered !!");
+        if (we.getType() == Watcher.Event.EventType.NodeDataChanged) {
+            System.out.println("Quit worker Watcher triggered !!");
             try {
-                zw.removeRequest();
+                zw.removeQuit();
             } catch (KeeperException e) {
                 e.printStackTrace();
             } catch (InterruptedException e) {
@@ -42,7 +38,7 @@ public class RegisterWorkerWatcher implements Watcher, Runnable {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-            System.out.println("Register Watcher thread ends");
+            System.out.println("Quit watcher thread ends");
         }
     }
 }

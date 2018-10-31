@@ -44,6 +44,9 @@ public class ZooWorker implements Runnable{
     public void register() throws KeeperException, InterruptedException {
         zoo.create("/request/enroll/" + name , "-1".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
     }
+    public void quit() throws KeeperException, InterruptedException {
+        zoo.create("/request/quit/" + name , "-1".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+    }
 
     public void watchCreatedNodes () throws KeeperException, InterruptedException {
         RegisterWorkerWatcher rww = new RegisterWorkerWatcher(this);
@@ -54,15 +57,34 @@ public class ZooWorker implements Runnable{
         if (data.toString() == "1"| data.toString() == "2") {
             // if I'm here it means the action that I'm watching has already happen,
             // so I do what the watcher is supposed to do, remove the node and release the watcher thread
-            remove();
+            removeRequest();
             rww.onetime.countDown();
         }
 
     }
+    public void watchQuittingNodes () throws KeeperException, InterruptedException {
+        QuitWorkerWatcher qww = new QuitWorkerWatcher(this);
+        Thread qwThread = new Thread(qww);
+        qwThread.setName("QuittingNodes worker watcher");
+        qwThread.start();
+        byte[] data = zoo.getData("/request/quit/" + name, qww, null);
 
-    public void remove () throws KeeperException, InterruptedException {
+        if (data.toString() == "1"| data.toString() == "2") {
+            // if I'm here it means the action that I'm watching has already happen,
+            // so I do what the watcher is supposed to do, remove the node and release the watcher thread
+            removeQuit();
+            qww.onetime.countDown();
+        }
+
+    }
+
+    public void removeRequest () throws KeeperException, InterruptedException {
         int version_delete = zoo.exists("/request/enroll" + name, true).getVersion();
         zoo.delete("/request/enroll" + name, version_delete);
+    }
+    public void removeQuit () throws KeeperException, InterruptedException {
+        int version_delete = zoo.exists("/request/quit" + name, true).getVersion();
+        zoo.delete("/request/quit" + name, version_delete);
     }
 
 
@@ -70,6 +92,9 @@ public class ZooWorker implements Runnable{
         try {
             register();
             watchCreatedNodes();
+            Thread.sleep(2000);
+            quit();
+            watchQuittingNodes();
             synchronized (this) {
                 while(true) {
                     wait();

@@ -23,7 +23,7 @@ public class QuitManagerWatcher implements Watcher, Runnable {
 
     public void process(WatchedEvent we) {
         if (we.getType() == EventType.NodeChildrenChanged) {
-            System.out.println("Manager Watcher triggered !!");
+            System.out.println("Quit Manager Watcher triggered !!");
             try {
                 zm.quit();
             } catch (KeeperException e) {

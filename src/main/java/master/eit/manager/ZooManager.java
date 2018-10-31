@@ -67,7 +67,7 @@ public class ZooManager implements Runnable {
                     byte[] bdata = zoo.getData("/request/enroll/" + child, true, null);
                     String data = new String(bdata, "UTF-8");
                     if (data.equals(new String("-1"))) {
-                        int version_request = zoo.exists("/request/enroll" + child, true).getVersion();
+                        int version_request = zoo.exists("/request/enroll", true).getVersion();
                         try {
                             Stat stat_registry = zoo.exists("/registry/" + child, true);
                             if (stat_registry == null) {
@@ -104,7 +104,7 @@ public class ZooManager implements Runnable {
                     byte[] bdata = zoo.getData("/request/quit/" + child, true, null);
                     String data = new String(bdata, "UTF-8");
                     if (data.equals("-1")) {
-                        int version_request = zoo.exists("/request/quit" + child, true).getVersion();
+                        int version_request = zoo.exists("/request/quit", true).getVersion();
                         try {
                             Stat stat_registry = zoo.exists("/registry/" + child, true);
                             if (stat_registry != null) {
@@ -129,6 +129,7 @@ public class ZooManager implements Runnable {
     public void run() {
         try {
             register();
+            quit();
             synchronized (this) {
                 while(true) {
                     wait();

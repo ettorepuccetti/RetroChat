@@ -17,13 +17,13 @@ public class RegisterManagerWatcher implements Watcher, Runnable {
 
     public RegisterManagerWatcher(ZooManager zoo) {
         this.zm = zoo;
-        System.out.println("Manager Watcher set");
+        System.out.println("Register Manager Watcher set");
 
     }
 
     public void process(WatchedEvent we) {
         if (we.getType() == EventType.NodeChildrenChanged) {
-            System.out.println("Manager Watcher triggered !!");
+            System.out.println("Register Manager Watcher triggered !!");
             try {
                 zm.register();
             } catch (KeeperException e) {
@@ -42,7 +42,7 @@ public class RegisterManagerWatcher implements Watcher, Runnable {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-            System.out.println("Manager Watcher thread ends");
+            System.out.println("Register Manager Watcher thread ends");
         }
     }
 }
