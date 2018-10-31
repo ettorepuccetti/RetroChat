@@ -2,12 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="717d5a5f-5680-4ccd-acdd-74915a997d3b" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/master/eit/worker/QuitWorkerWatcher.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/master/eit/manager/OnlineManagerWatcher.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/master/eit/manager/QuitManagerWatcher.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/master/eit/manager/QuitManagerWatcher.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/master/eit/manager/RegisterManagerWatcher.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/master/eit/manager/RegisterManagerWatcher.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/master/eit/manager/ZooManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/master/eit/manager/ZooManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/master/eit/worker/RegisterWorkerWatcher.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/master/eit/worker/RegisterWorkerWatcher.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/master/eit/worker/ZooWorker.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/master/eit/worker/ZooWorker.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/target/" />
@@ -31,25 +28,25 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="java" value="14" />
+          <entry key="java" value="15" />
           <entry key="xml" value="1" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="JAVA" value="14" />
+          <entry key="JAVA" value="15" />
           <entry key="XML" value="1" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="dummy" value="2" />
-          <entry key="java" value="2290" />
+          <entry key="java" value="3378" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="JAVA" value="2290" />
+          <entry key="JAVA" value="3378" />
           <entry key="PLAIN_TEXT" value="2" />
         </counts>
       </usages-collector>
@@ -61,11 +58,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/master/eit/manager/ZooManager.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="258">
-              <caret line="97" column="14" selection-start-line="97" selection-start-column="14" selection-end-line="97" selection-end-column="14" />
+            <state relative-caret-position="561">
+              <caret line="151" column="61" lean-forward="true" selection-start-line="151" selection-start-column="61" selection-end-line="151" selection-end-column="61" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -74,10 +71,22 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/master/eit/worker/MainWorker.java">
+        <entry file="file://$PROJECT_DIR$/src/main/java/master/eit/manager/OnlineManagerWatcher.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="68">
-              <caret line="4" column="13" selection-start-line="4" selection-start-column="13" selection-end-line="4" selection-end-column="13" />
+            <state relative-caret-position="136">
+              <caret line="8" column="62" selection-start-line="8" selection-start-column="62" selection-end-line="8" selection-end-column="62" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/master/eit/worker/ZooWorker.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="827">
+              <caret line="90" column="8" selection-start-line="90" selection-start-column="8" selection-end-line="90" selection-end-column="8" />
             </state>
           </provider>
         </entry>
@@ -106,20 +115,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/java/master/eit/worker/ZooWorker.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="63">
-              <caret line="88" lean-forward="true" selection-start-line="88" selection-end-line="88" />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/master/eit/manager/QuitManagerWatcher.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="46">
-              <caret line="25" column="37" selection-start-line="25" selection-start-column="37" selection-end-line="25" selection-end-column="37" />
+            <state relative-caret-position="697">
+              <caret line="46" column="5" lean-forward="true" selection-start-line="13" selection-start-column="3" selection-end-line="46" selection-end-column="5" />
             </state>
           </provider>
         </entry>
@@ -180,11 +180,12 @@
         <option value="$PROJECT_DIR$/src/main/java/master/eit/ZooManager.java" />
         <option value="$PROJECT_DIR$/src/main/java/master/eit/zooWorker.java" />
         <option value="$PROJECT_DIR$/src/main/java/master/eit/ZooWorker.java" />
-        <option value="$PROJECT_DIR$/src/main/java/master/eit/worker/ZooWorker.java" />
         <option value="$PROJECT_DIR$/src/main/java/master/eit/worker/QuitWorkerWatcher.java" />
         <option value="$PROJECT_DIR$/src/main/java/master/eit/worker/RegisterWorkerWatcher.java" />
         <option value="$PROJECT_DIR$/src/main/java/master/eit/manager/RegisterManagerWatcher.java" />
         <option value="$PROJECT_DIR$/src/main/java/master/eit/manager/QuitManagerWatcher.java" />
+        <option value="$PROJECT_DIR$/src/main/java/master/eit/manager/OnlineManagerWatcher.java" />
+        <option value="$PROJECT_DIR$/src/main/java/master/eit/worker/ZooWorker.java" />
         <option value="$PROJECT_DIR$/src/main/java/master/eit/manager/ZooManager.java" />
       </list>
     </option>
@@ -295,7 +296,7 @@
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1540989040512" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1540992254998" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
@@ -411,7 +412,7 @@
       <workItem from="1540378680157" duration="1296000" />
       <workItem from="1540555827185" duration="1500000" />
       <workItem from="1540810360374" duration="2001000" />
-      <workItem from="1540985185252" duration="3854000" />
+      <workItem from="1540985185252" duration="6945000" />
     </task>
     <servers />
   </component>
@@ -427,12 +428,13 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="28528000" />
+    <option name="totallyTimeSpent" value="31619000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="46" y="0" width="1875" height="1081" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.13191023" />
+      <window_info content_ui="combo" id="Project" order="0" weight="0.13191023" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
@@ -441,7 +443,7 @@
       <window_info id="Favorites" order="6" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.39345992" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.39345992" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -514,27 +516,27 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/master/eit/manager/QuitManagerWatcher.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="46">
-          <caret line="25" column="37" selection-start-line="25" selection-start-column="37" selection-end-line="25" selection-end-column="37" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/master/eit/manager/ZooManager.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="258">
-          <caret line="97" column="14" selection-start-line="97" selection-start-column="14" selection-end-line="97" selection-end-column="14" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/master/eit/manager/MainManager.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="204">
           <caret line="12" lean-forward="true" selection-start-line="12" selection-end-line="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/master/eit/manager/QuitManagerWatcher.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="697">
+          <caret line="46" column="5" lean-forward="true" selection-start-line="13" selection-start-column="3" selection-end-line="46" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/master/eit/manager/OnlineManagerWatcher.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="8" column="62" selection-start-line="8" selection-start-column="62" selection-end-line="8" selection-end-column="62" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -547,8 +549,18 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/master/eit/worker/ZooWorker.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="63">
-          <caret line="88" lean-forward="true" selection-start-line="88" selection-end-line="88" />
+        <state relative-caret-position="827">
+          <caret line="90" column="8" selection-start-line="90" selection-start-column="8" selection-end-line="90" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/master/eit/manager/ZooManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="561">
+          <caret line="151" column="61" lean-forward="true" selection-start-line="151" selection-start-column="61" selection-end-line="151" selection-end-column="61" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

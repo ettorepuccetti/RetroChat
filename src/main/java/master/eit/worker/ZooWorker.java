@@ -87,6 +87,9 @@ public class ZooWorker implements Runnable{
         zoo.delete("/request/quit" + name, version_delete);
     }
 
+    public void createOnlineNode() throws KeeperException, InterruptedException {
+        zoo.create("/online/" + name, "-1".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+    }
 
     public void run() {
         try {

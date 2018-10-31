@@ -72,6 +72,8 @@ public class ZooManager implements Runnable {
                             Stat stat_registry = zoo.exists("/registry/" + child, true);
                             if (stat_registry == null) {
                                 zoo.create("/registry/" + child, null, ZooDefs.Ids.OPEN_ACL_UNSAFE,CreateMode.PERSISTENT);
+                                int version_registry = zoo.exists("/registry/" + child, true).getVersion();
+                                zoo.setData("/registry/" + child, "0".getBytes(), version_registry);     //0 means it's going to be the first time online
                                 zoo.setData("/request/enroll/" + child, "1".getBytes(), version_request);
                             }
                             else {
@@ -123,6 +125,40 @@ public class ZooManager implements Runnable {
             } catch (Exception e ) {
                 e.printStackTrace();
             }   
+        }
+    }
+    public void goOnline() throws KeeperException, InterruptedException {
+        Stat stat_exist = zoo.exists("/online", true);
+        if (stat_exist != null) {
+            try {
+                List<String> children;
+                OnlineManagerWatcher onlineManagerWatcher = new OnlineManagerWatcher(this);
+                Thread onlineManagerThread = new Thread(onlineManagerWatcher);
+                onlineManagerThread.setName("online watcher");
+                onlineManagerThread.start();
+                children = zoo.getChildren("/online", onlineManagerWatcher);
+                for (int i = 0; i < children.size(); i++) {
+                    String child = children.get(i);
+                    byte[] byteData = zoo.getData("/online/" + child, true,null);
+                    String data = new String(byteData, "UTF-8");
+                    if (data.equals("-1")) {
+                        int version_request = zoo.exists("/online/", true).getVersion();
+                        int version_registry = zoo.exists("/registry/" + child, true).getVersion();
+                        try {
+                            Stat stat_registry = zoo.exists("/registry/" + child, true);
+                            String firstTimeOnline = new String(zoo.getData("/registry/" + child, true,  null), "UTF-8");
+                            if (stat_registry != null && firstTimeOnline == "0") {
+                                zoo.setData("/registry/" + child, "1".getBytes(), version_registry);    //1 means the node was online already at least once
+                                //Create /topic/w_id in Kafka
+                            }
+                        } catch (KeeperException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
