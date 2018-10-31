@@ -96,8 +96,9 @@ public class ZooWorker implements Runnable{
             register();
             watchCreatedNodes();
             Thread.sleep(2000);
-            quit();
-            watchQuittingNodes();
+            //System.out.println();
+            //quit();
+            //watchQuittingNodes();
             synchronized (this) {
                 while(true) {
                     wait();
