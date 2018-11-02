@@ -22,7 +22,7 @@ public class OnlineManagerWatcher implements Runnable, Watcher{
         if (we.getType() == Watcher.Event.EventType.NodeChildrenChanged) {
             System.out.println("Online Manager Watcher triggered !!");
             try {
-                zm.quit();
+                zm.goOnline();
             } catch (KeeperException e) {
                 e.printStackTrace();
             } catch (InterruptedException e) {

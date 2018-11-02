@@ -143,12 +143,14 @@ public class ZooManager implements Runnable {
                     byte[] byteData = zoo.getData("/online/" + child, true,null);
                     String data = new String(byteData, "UTF-8");
                     if (data.equals("-1")) {
-                        int version_request = zoo.exists("/online/", true).getVersion();
+                        int version_request = zoo.exists("/online", true).getVersion();
                         int version_registry = zoo.exists("/registry/" + child, true).getVersion();
+                        System.out.println("Will change node data");
                         try {
                             Stat stat_registry = zoo.exists("/registry/" + child, true);
                             String firstTimeOnline = new String(zoo.getData("/registry/" + child, true,  null), "UTF-8");
-                            if (stat_registry != null && firstTimeOnline == "0") {
+                            System.out.println(firstTimeOnline + "condition: ");
+                            if (stat_registry != null && firstTimeOnline.equals("0")) {
                                 zoo.setData("/registry/" + child, "1".getBytes(), version_registry);    //1 means the node was online already at least once
                                 //Create /topic/w_id in Kafka
                             }
