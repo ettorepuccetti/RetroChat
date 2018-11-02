@@ -1,6 +1,7 @@
 package master.eit.worker;
 
 import java.io.IOException;
+import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -101,6 +102,11 @@ public class ZooWorker implements Runnable{
             //watchQuittingNodes();
             synchronized (this) {
                 while(true) {
+                    String s;
+                    Scanner in = new Scanner(System.in);
+                    System.out.println("Enter a string");
+                    s = in.nextLine();
+                    System.out.println("You entered online " + s);
                     wait();
                 }
             }
