@@ -94,27 +94,36 @@ public class ZooWorker implements Runnable{
 
     public void run() {
         try {
-            register();
-            watchCreatedNodes();
-            Thread.sleep(2000);
-            //System.out.println();
-            //quit();
-            //watchQuittingNodes();
-            synchronized (this) {
-                while(true) {
-                    String s;
-                    Scanner in = new Scanner(System.in);
-                    System.out.println("Enter a string");
-                    s = in.nextLine();
-                    System.out.println("You entered online " + s);
-                    wait();
+            while (true) {
+                String s;
+                Scanner in = new Scanner(System.in);
+                System.out.println("Enter a string");
+                s = in.nextLine();
+
+                int number_code = Integer.parseInt(s);
+                System.out.println("Line entered : " + s);
+                switch (number_code) {
+                    case 1:
+                        System.out.println("register");
+                        register();
+                        watchCreatedNodes();
+                        break;
+                    case 2:
+                        System.out.println("go online");
+                        createOnlineNode();
+                        break;
+                    case 3:
+                        System.out.println("quit");
+                        quit();
+                        watchQuittingNodes();
+                        break;
+                    default:
+                        System.out.println("usage: ... bla ...");
+                        break;
+
+                    //wait();
                 }
             }
-        } catch (KeeperException e1) {
-            e1.printStackTrace();
-        } catch (InterruptedException e1) {
-            e1.printStackTrace();
-            Thread.currentThread().interrupt();
+        } catch (Exception e) {e.printStackTrace();}
         }
-    }
 }

@@ -166,7 +166,8 @@ public class ZooManager implements Runnable {
     public void run() {
         try {
             register();
-            //quit();
+            goOnline();
+            quit();
             synchronized (this) {
                 while(true) {
                     wait();

@@ -17,7 +17,7 @@ public class QuitManagerWatcher implements Watcher, Runnable {
 
     public QuitManagerWatcher(ZooManager zoo) {
         this.zm = zoo;
-        System.out.println("Manager Quit Watcher set");
+        System.out.println("Quit Manager Watcher set");
 
     }
 
