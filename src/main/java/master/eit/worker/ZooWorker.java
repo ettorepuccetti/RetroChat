@@ -13,7 +13,6 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.Watcher.Event.KeeperState;
 import org.apache.zookeeper.ZooKeeper.States;
-import org.apache.zookeeper.data.Stat;
 
 public class ZooWorker implements Runnable{
     

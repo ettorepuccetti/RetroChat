@@ -1,11 +1,15 @@
 package master.eit.manager;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.AdminClientConfig;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.CreateMode;
@@ -113,6 +117,9 @@ public class ZooManager implements Runnable {
                             if (stat_registry != null) {
                                 zoo.delete("/registry/" + child, stat_registry.getVersion());
                                 zoo.setData("/request/quit/" + child, "1".getBytes(), version_request);
+                                List<String> topicsToDelete = new ArrayList<String>();
+                                topicsToDelete.add(child + "'s topic");
+                                //deleteKafkaTopic(topicsToDelete);
                             }
                             else {
                                 zoo.setData("/request/quit/" + child, "2".getBytes(), version_request);                                
@@ -143,15 +150,17 @@ public class ZooManager implements Runnable {
                     byte[] byteData = zoo.getData("/online/" + child, true,null);
                     String data = new String(byteData, "UTF-8");
                     if (data.equals("-1")) {
-                        int version_request = zoo.exists("/online", true).getVersion();
                         int version_registry = zoo.exists("/registry/" + child, true).getVersion();
-                        System.out.println("Will change node data");
                         try {
                             Stat stat_registry = zoo.exists("/registry/" + child, true);
                             String firstTimeOnline = new String(zoo.getData("/registry/" + child, true,  null), "UTF-8");
-                            System.out.println(firstTimeOnline + "condition: ");
                             if (stat_registry != null && firstTimeOnline.equals("0")) {
                                 zoo.setData("/registry/" + child, "1".getBytes(), version_registry);    //1 means the node was online already at least once
+                                System.out.println("creating topic");
+                                KafkaProducer<String, String> kafkaProducer = createProducer();
+                                kafkaProducer.send(new ProducerRecord<String, String>
+                                        (child + "'s topic", 0, "testKey", "testValue"));
+                                kafkaProducer.close();
                                 //Create /topic/w_id in Kafka
                             }
                         } catch (KeeperException e) {
@@ -163,6 +172,26 @@ public class ZooManager implements Runnable {
                 e.printStackTrace();
             }
         }
+    }
+    public KafkaProducer<String, String> createProducer(){
+        Properties properties = new Properties();
+        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                "localhost:9092");
+        properties.put("acks", "all");
+        properties.put("retries", 0);
+        properties.put("batch.size", 16384);
+        properties.put("buffer.memory", 33554432);
+        properties.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        properties.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        KafkaProducer<String, String> producer = new KafkaProducer<String, String>(properties);
+        return producer;
+    }
+
+    public static void deleteKafkaTopic(Collection<String> topics){
+        Properties config = new Properties();
+        config.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9093");
+        AdminClient admin = AdminClient.create(config);
+        admin.deleteTopics(topics);
     }
 
     public void run() {
