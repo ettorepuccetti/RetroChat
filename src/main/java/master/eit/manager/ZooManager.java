@@ -153,15 +153,13 @@ public class ZooManager implements Runnable {
                         int version_registry = zoo.exists("/registry/" + child, true).getVersion();
                         try {
                             Stat stat_registry = zoo.exists("/registry/" + child, true);
-                            String firstTimeOnline = new String(zoo.getData("/registry/" + child, true,  null), "UTF-8");
-                            if (stat_registry != null && firstTimeOnline.equals("0")) {
-                                zoo.setData("/registry/" + child, "1".getBytes(), version_registry);    //1 means the node was online already at least once
+                            Stat stat_topic = zoo.exists("/brokers/topics/" + child, true);
+                            if (stat_registry != null && stat_topic == null) {                       //if topic is not there, it means worker is first time online and we create topic
                                 System.out.println("creating topic");
                                 KafkaProducer<String, String> kafkaProducer = createProducer();
                                 kafkaProducer.send(new ProducerRecord<String, String>
-                                        (child + "'s topic", 0, "testKey", "testValue"));
+                                        (child, 0, "testKey", "testValue"));
                                 kafkaProducer.close();
-                                //Create /topic/w_id in Kafka
                             }
                         } catch (KeeperException e) {
                             e.printStackTrace();
@@ -176,7 +174,7 @@ public class ZooManager implements Runnable {
     public KafkaProducer<String, String> createProducer(){
         Properties properties = new Properties();
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                "localhost:9092");
+                "localhost:2181");
         properties.put("acks", "all");
         properties.put("retries", 0);
         properties.put("batch.size", 16384);

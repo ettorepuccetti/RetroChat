@@ -91,6 +91,10 @@ public class ZooWorker implements Runnable{
         zoo.create("/online/" + name, "-1".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
     }
 
+    public void sendMessage(String w_id, String message) {
+
+    }
+
     public void run() {
         try {
             while (true) {
@@ -116,6 +120,11 @@ public class ZooWorker implements Runnable{
                         quit();
                         watchQuittingNodes();
                         break;
+                    case 4:
+                        sendMessage("master2018", "Hello");
+                        sendMessage("master2018", "Hello2");
+                        break;
+
                     default:
                         System.out.println("usage: ... bla ...");
                         break;
