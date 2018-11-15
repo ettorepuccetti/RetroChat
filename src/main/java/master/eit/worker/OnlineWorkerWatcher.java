@@ -1,6 +1,5 @@
 package master.eit.worker;
 
-import master.eit.manager.OnlineManagerWatcher;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;

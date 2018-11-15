@@ -50,15 +50,11 @@ public class ZooManager implements Runnable {
     public void setUp() throws KeeperException, InterruptedException {
 
         Stat request_exist = zoo.exists("/request", true);
-        
         if ( request_exist != null) {
-
-
             Stat enroll_exist = zoo.exists("/request/enroll", true);
             if ( enroll_exist != null) {
                 deleteWithChildreen("/request/enroll", enroll_exist.getVersion());
             }
-
             Stat quit_exist = zoo.exists("/request/quit", true);
             if ( quit_exist != null) {
                 deleteWithChildreen("/request/quit", quit_exist.getVersion());
@@ -66,7 +62,6 @@ public class ZooManager implements Runnable {
             deleteWithChildreen("/request", request_exist.getVersion());
         }
 
-        
         Stat registry_exist = zoo.exists("/registry", true);
         if ( registry_exist != null) {
             deleteWithChildreen("/registry", registry_exist.getVersion());
@@ -193,15 +188,14 @@ public class ZooManager implements Runnable {
                     byte[] byteData = zoo.getData("/online/" + child, true,null);
                     String data = new String(byteData, "UTF-8");
                     if (data.equals("-1")) {
-                        int version_registry = zoo.exists("/registry/" + child, true).getVersion();
                         try {
                             Stat stat_registry = zoo.exists("/registry/" + child, true);
                             Stat stat_topic = zoo.exists("/brokers/topics/" + child, true);
-                            if (stat_registry != null && stat_topic == null) {                       //if topic is not there, it means worker is first time online and we create topic
+                            if (stat_registry != null && stat_topic == null) {
+                                //if topic is not there, it means worker is first time online and we create topic
                                 System.out.println("creating topic");
                                 KafkaProducer<String, String> kafkaProducer = createProducer();
-                                kafkaProducer.send(new ProducerRecord<String, String>
-                                        (child, 0, "testKey", "testValue"));
+                                kafkaProducer.send(new ProducerRecord<String, String>(child, 0, "testKey", "testValue"));
                                 kafkaProducer.close();
                             }
                         } catch (KeeperException e) {
@@ -214,10 +208,10 @@ public class ZooManager implements Runnable {
             }
         }
     }
-    public KafkaProducer<String, String> createProducer(){
+
+    public static KafkaProducer<String, String> createProducer(){
         Properties properties = new Properties();
-        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                "localhost:2181");
+        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,"localhost:9092");
         properties.put("acks", "all");
         properties.put("retries", 0);
         properties.put("batch.size", 16384);
@@ -228,7 +222,7 @@ public class ZooManager implements Runnable {
         return producer;
     }
 
-    public static void deleteKafkaTopic(Collection<String> topics){
+    public static void deleteKafkaTopic(Collection<String> topics) {
         Properties config = new Properties();
         config.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9093");
         AdminClient admin = AdminClient.create(config);

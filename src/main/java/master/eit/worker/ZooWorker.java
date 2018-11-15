@@ -7,12 +7,16 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.Watcher.Event.KeeperState;
 import org.apache.zookeeper.ZooKeeper.States;
+
+import static master.eit.manager.ZooManager.createProducer;
 
 public class ZooWorker implements Runnable{
     
@@ -92,14 +96,15 @@ public class ZooWorker implements Runnable{
     }
 
     public void sendMessage(String w_id, String message) {
-
+        KafkaProducer<String, String> kafkaProducer = createProducer();
+        kafkaProducer.send(new ProducerRecord<String, String>(w_id, message));
     }
 
     public void run() {
-        try {
+        try {                
+            Scanner in = new Scanner(System.in);
             while (true) {
                 String s;
-                Scanner in = new Scanner(System.in);
                 System.out.println("Enter a string");
                 s = in.nextLine();
 
@@ -122,7 +127,7 @@ public class ZooWorker implements Runnable{
                         break;
                     case 4:
                         sendMessage("master2018", "Hello");
-                        sendMessage("master2018", "Hello2");
+                        //sendMessage("master2018", "Hello2");
                         break;
 
                     default:
@@ -132,6 +137,8 @@ public class ZooWorker implements Runnable{
                     //wait();
                 }
             }
-        } catch (Exception e) {e.printStackTrace();}
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+    }
 }
