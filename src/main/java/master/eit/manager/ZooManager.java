@@ -51,27 +51,50 @@ public class ZooManager implements Runnable {
 
         Stat enroll_exist = zoo.exists("/request/enroll", true);
         if ( enroll_exist != null) {
-            zoo.delete("/request/enroll", enroll_exist.getVersion());
-            zoo.create(("/request/enroll"), null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            deleteWithChildreen("/request/enroll", enroll_exist.getVersion());
+            zoo.create("/request/enroll", null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+        } else {
+            zoo.create("/request/enroll", null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
         }
 
         Stat quit_exist = zoo.exists("/request/quit", true);
         if ( quit_exist != null) {
-            zoo.delete("/request/quit", quit_exist.getVersion());
-            zoo.create(("/request/quit"), null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            deleteWithChildreen("/request/quit", quit_exist.getVersion());
+            zoo.create("/request/quit", null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+        } else {
+            zoo.create("/request/quit", null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
         }
 
         Stat registry_exist = zoo.exists("/registry", true);
         if ( registry_exist != null) {
-            zoo.delete("/registry", registry_exist.getVersion());
-            zoo.create(("/registry"), null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            deleteWithChildreen("/registry", registry_exist.getVersion());
+            zoo.create("/registry", null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+        } else {
+            zoo.create("/registry", null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
         }
 
         Stat online_exist = zoo.exists("/online", true);
         if ( online_exist != null) {
-            zoo.delete("/online", online_exist.getVersion());
-            zoo.create(("/online"), null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            deleteWithChildreen("/online", online_exist.getVersion());
+            zoo.create("/online", null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+        } else {
+            zoo.create("/online", null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
         }
+    }
+
+    public void deleteWithChildreen (String path, int version) {
+        try {
+            List<String> children;
+            children = zoo.getChildren(path, null);
+            for (int i = 0; i < children.size(); i++) {
+                String child = children.get(i);
+                zoo.delete(path + "/" + child, -1);
+            }
+            zoo.delete(path, version);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
 
