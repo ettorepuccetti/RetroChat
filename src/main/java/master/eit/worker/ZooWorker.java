@@ -1,6 +1,7 @@
 package master.eit.worker;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -45,20 +46,23 @@ public class ZooWorker implements Runnable{
         System.out.println(state);
     }
 
+    //why it is creating in ephemeral mode???
     public void register() throws KeeperException, InterruptedException {
         zoo.create("/request/enroll/" + name , "-1".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
     }
+
     public void quit() throws KeeperException, InterruptedException {
         zoo.create("/request/quit/" + name , "-1".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
     }
 
-    public void watchCreatedNodes () throws KeeperException, InterruptedException {
+    public void watchCreatedNodes () throws KeeperException, InterruptedException, UnsupportedEncodingException {
         RegisterWorkerWatcher rww = new RegisterWorkerWatcher(this);
         Thread rwThread = new Thread(rww);
         rwThread.setName("register worker watcher");
         rwThread.start();
-        byte[] data = zoo.getData("/request/enroll/" + name, rww, null);
-        if (data.toString() == "1"| data.toString() == "2") {
+        byte[] bdata = zoo.getData("/request/enroll/" + name, rww, null);
+        String data = new String(bdata, "UTF-8");
+        if (data.equals("1") || data.equals("2") ) {
             // if I'm here it means the action that I'm watching has already happen,
             // so I do what the watcher is supposed to do, remove the node and release the watcher thread
             removeRequest();
@@ -66,14 +70,14 @@ public class ZooWorker implements Runnable{
         }
 
     }
-    public void watchQuittingNodes () throws KeeperException, InterruptedException {
+    public void watchQuittingNodes () throws KeeperException, InterruptedException, UnsupportedEncodingException {
         QuitWorkerWatcher qww = new QuitWorkerWatcher(this);
         Thread qwThread = new Thread(qww);
         qwThread.setName("QuittingNodes worker watcher");
         qwThread.start();
-        byte[] data = zoo.getData("/request/quit/" + name, qww, null);
-
-        if (data.toString() == "1"| data.toString() == "2") {
+        byte[] bdata = zoo.getData("/request/quit/" + name, qww, null);
+        String data = new String(bdata, "UTF-8");
+        if (data.equals("1") || data.equals("2") ) {
             // if I'm here it means the action that I'm watching has already happen,
             // so I do what the watcher is supposed to do, remove the node and release the watcher thread
             removeQuit();
@@ -83,12 +87,12 @@ public class ZooWorker implements Runnable{
     }
 
     public void removeRequest () throws KeeperException, InterruptedException {
-        int version_delete = zoo.exists("/request/enroll" + name, true).getVersion();
-        zoo.delete("/request/enroll" + name, version_delete);
+        int version_delete = zoo.exists("/request/enroll/" + name, true).getVersion();
+        zoo.delete("/request/enroll/" + name, version_delete);
     }
     public void removeQuit () throws KeeperException, InterruptedException {
-        int version_delete = zoo.exists("/request/quit" + name, true).getVersion();
-        zoo.delete("/request/quit" + name, version_delete);
+        int version_delete = zoo.exists("/request/quit/" + name, true).getVersion();
+        zoo.delete("/request/quit/" + name, version_delete);
     }
 
     public void createOnlineNode() throws KeeperException, InterruptedException {
@@ -97,7 +101,7 @@ public class ZooWorker implements Runnable{
 
     public void sendMessage(String w_id, String message) {
         KafkaProducer<String, String> kafkaProducer = createProducer();
-        kafkaProducer.send(new ProducerRecord<String, String>(w_id, message));
+        kafkaProducer.send(new ProducerRecord<String, String>(name, w_id, message));
     }
 
     public void run() {

@@ -21,6 +21,9 @@ public class RegisterManagerWatcher implements Watcher, Runnable {
 
     }
 
+    //it get triggered twice for every registation process, once when the new node-request
+    // is created , and once when it is deleted. This last time, the call to register() doesn't have
+    // any effects, because  the childreen list is empty now.
     public void process(WatchedEvent we) {
         if (we.getType() == EventType.NodeChildrenChanged) {
             System.out.println("Register Manager Watcher triggered !!");

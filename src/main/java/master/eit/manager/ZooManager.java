@@ -115,8 +115,6 @@ public class ZooManager implements Runnable {
                             Stat stat_registry = zoo.exists("/registry/" + child, true);
                             if (stat_registry == null) {
                                 zoo.create("/registry/" + child, null, ZooDefs.Ids.OPEN_ACL_UNSAFE,CreateMode.PERSISTENT);
-                                int version_registry = zoo.exists("/registry/" + child, true).getVersion();
-                                zoo.setData("/registry/" + child, "0".getBytes(), version_registry);     //0 means it's going to be the first time online
                                 zoo.setData("/request/enroll/" + child, "1".getBytes(), version_request);
                             }
                             else {
@@ -211,7 +209,7 @@ public class ZooManager implements Runnable {
 
     public static KafkaProducer<String, String> createProducer(){
         Properties properties = new Properties();
-        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,"localhost:9092");
+        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,"localhost:9092,localhost:9093,localhost:9094");
         properties.put("acks", "all");
         properties.put("retries", 0);
         properties.put("batch.size", 16384);
