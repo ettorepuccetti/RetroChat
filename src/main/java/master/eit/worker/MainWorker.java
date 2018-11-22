@@ -4,9 +4,13 @@ import org.apache.zookeeper.KeeperException;
 
 public class MainWorker {
     public static void main(String[] args) throws KeeperException, InterruptedException  {
-        ZooWorker zwo = new ZooWorker("EttoreNicolae"); // it doesn't work with &
+        String client_id = "default";
+        if (args.length > 0) {
+            client_id = args[0];
+        }
+        ZooWorker zwo = new ZooWorker(client_id);
         Thread zmThread = new Thread(zwo);
-        zmThread.setName("zoo worker");
+        zmThread.setName("zoo worker - " + client_id);
         zmThread.start();
     }
 } 

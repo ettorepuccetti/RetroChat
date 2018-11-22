@@ -2,6 +2,7 @@ package master.eit.worker;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -48,11 +49,11 @@ public class ZooWorker implements Runnable{
 
     //why it is creating in ephemeral mode???
     public void register() throws KeeperException, InterruptedException {
-        zoo.create("/request/enroll/" + name , "-1".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+        zoo.create("/request/enroll/" + name , "-1".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
     }
 
     public void quit() throws KeeperException, InterruptedException {
-        zoo.create("/request/quit/" + name , "-1".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+        zoo.create("/request/quit/" + name , "-1".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
     }
 
     public void watchCreatedNodes () throws KeeperException, InterruptedException, UnsupportedEncodingException {
@@ -99,49 +100,82 @@ public class ZooWorker implements Runnable{
         zoo.create("/online/" + name, "-1".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
     }
 
-    public void sendMessage(String w_id, String message) {
+    public void sendMessage(String topic, String message) {
         KafkaProducer<String, String> kafkaProducer = createProducer();
-        kafkaProducer.send(new ProducerRecord<String, String>(name, w_id, message));
+        kafkaProducer.send(new ProducerRecord<String, String>(topic, message));
     }
 
     public void run() {
-        try {                
+        try {
+            int number_code = 6; // so if it initially fail to scan the value from System.in, it loop on the while and it try again.
+            String s;
             Scanner in = new Scanner(System.in);
-            while (true) {
-                String s;
-                System.out.println("Enter a string");
+            Scanner messageScanner = new Scanner(System.in);
+            
+            System.out.println("\nusage:\n 1 - register \n 2 - go online \n 3 - quit \n 4 - send messages \n 5 - watch online clients \n 0 - exit\n");
+            
+            try {
                 s = in.nextLine();
+                number_code = Integer.parseInt(s); 
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            } catch (NoSuchElementException e) {
+                e.printStackTrace();
+            }
 
-                int number_code = Integer.parseInt(s);
-                System.out.println("Line entered : " + s);
+            while (number_code != 0) {
                 switch (number_code) {
                     case 1:
-                        System.out.println("register");
+                        System.out.println("\nREGISTER");
                         register();
                         watchCreatedNodes();
                         break;
                     case 2:
-                        System.out.println("go online");
+                        System.out.println("\nGO ONLINE");
                         createOnlineNode();
                         break;
                     case 3:
-                        System.out.println("quit");
+                        System.out.println("\nQUIT");
                         quit();
                         watchQuittingNodes();
                         break;
                     case 4:
-                        sendMessage("master2018", "Hello");
-                        //sendMessage("master2018", "Hello2");
+                        System.out.println("\nSENDING MESSAGES");
+                        System.out.println("\n Choose the USER. Enter \"--list\" for viewing online users ");
+                        String topic = messageScanner.nextLine();
+                        while (topic.equals("--list")) {
+                            // calling function to print online users
+                            System.out.println("\n Choose the USER. Enter \"--list\" for viewing online users ");
+                            topic = messageScanner.nextLine();
+                        }
+                        System.out.println("\nEnter MESSAGEs to " + topic + ". Enter \"--quit\" for closing ");
+                        String message = messageScanner.nextLine();
+                        while (!message.equals("--quit")) {
+                            sendMessage(topic, message);
+                            message = messageScanner.nextLine();
+                        }
                         break;
 
                     default:
-                        System.out.println("usage: ... bla ...");
                         break;
+                }
 
-                    //wait();
+                System.out.println("\nusage:\n 1 - register \n 2 - go online \n 3 - quit \n 4 - send messages \n 5 - watch online clients \n 0 - exit\n");
+                try {
+                    s = in.nextLine();
+                    number_code = Integer.parseInt(s); 
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                    continue;
+                } catch (NoSuchElementException e) {
+                    e.printStackTrace();
+                    continue;
                 }
             }
-        } catch (Exception e) {
+            in.close();
+            messageScanner.close();
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
     }

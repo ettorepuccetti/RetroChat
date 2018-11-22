@@ -193,7 +193,7 @@ public class ZooManager implements Runnable {
                                 //if topic is not there, it means worker is first time online and we create topic
                                 System.out.println("creating topic");
                                 KafkaProducer<String, String> kafkaProducer = createProducer();
-                                kafkaProducer.send(new ProducerRecord<String, String>(child, 0, "testKey", "testValue"));
+                                kafkaProducer.send(new ProducerRecord<String, String>(child, null));
                                 kafkaProducer.close();
                             }
                         } catch (KeeperException e) {
