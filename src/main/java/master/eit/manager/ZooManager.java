@@ -154,8 +154,8 @@ public class ZooManager implements Runnable {
                                 zoo.delete("/registry/" + child, stat_registry.getVersion());
                                 zoo.setData("/request/quit/" + child, "1".getBytes(), version_request);
                                 List<String> topicsToDelete = new ArrayList<String>();
-                                topicsToDelete.add(child + "'s topic");
-                                //deleteKafkaTopic(topicsToDelete);
+                                topicsToDelete.add(child);
+                                deleteKafkaTopic(topicsToDelete);
                             }
                             else {
                                 zoo.setData("/request/quit/" + child, "2".getBytes(), version_request);                                
@@ -183,22 +183,21 @@ public class ZooManager implements Runnable {
                 children = zoo.getChildren("/online", onlineManagerWatcher);
                 for (int i = 0; i < children.size(); i++) {
                     String child = children.get(i);
-                    byte[] byteData = zoo.getData("/online/" + child, true,null);
-                    String data = new String(byteData, "UTF-8");
-                    if (data.equals("-1")) {
-                        try {
-                            Stat stat_registry = zoo.exists("/registry/" + child, true);
-                            Stat stat_topic = zoo.exists("/brokers/topics/" + child, true);
-                            if (stat_registry != null && stat_topic == null) {
-                                //if topic is not there, it means worker is first time online and we create topic
-                                System.out.println("creating topic");
-                                KafkaProducer<String, String> kafkaProducer = createProducer();
-                                kafkaProducer.send(new ProducerRecord<String, String>(child, null));
-                                kafkaProducer.close();
-                            }
-                        } catch (KeeperException e) {
-                            e.printStackTrace();
+                    try {
+                        Stat stat_registry = zoo.exists("/registry/" + child, true);
+                        Stat stat_topic = zoo.exists("/brokers/topics/" + child, true);
+                        if (stat_registry == null) {
+                            System.out.println("CLIENT "+child+" NOT REGISTERED YET...");
                         }
+                        if (stat_registry != null && stat_topic == null) {
+                            //if topic is not there, it means worker is first time online and we create topic
+                            System.out.println("creating topic");
+                            KafkaProducer<String, String> kafkaProducer = createProducer();
+                            kafkaProducer.send(new ProducerRecord<String, String>(child, "[topic created]"));
+                            kafkaProducer.close();
+                        }
+                    } catch (KeeperException e) {
+                        e.printStackTrace();
                     }
                 }
             } catch (Exception e) {
@@ -222,7 +221,7 @@ public class ZooManager implements Runnable {
 
     public static void deleteKafkaTopic(Collection<String> topics) {
         Properties config = new Properties();
-        config.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9093");
+        config.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092,localhost:9093,localhost:9094");
         AdminClient admin = AdminClient.create(config);
         admin.deleteTopics(topics);
     }
