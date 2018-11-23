@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -20,9 +21,11 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.PartitionInfo;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
@@ -160,19 +163,22 @@ public class ZooWorker implements Runnable{
         Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,"localhost:9092,localhost:9093,localhost:9094");
         props.put("group.id", name);
-        // props.put("enable.auto.commit", "true");
+        props.put("enable.auto.commit", "false");
         // props.put("auto.commit.interval.ms","1000");
+        // props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put("key.deserializer","org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer","org.apache.kafka.common.serialization.StringDeserializer");
-        
         KafkaConsumer<String, String> consumer = new KafkaConsumer<String, String>(props);
         try {
-            consumer.subscribe(Collections.singletonList(name));;
-            ConsumerRecords<String, String> records = consumer.poll(10);
+            consumer.subscribe(Collections.singletonList(name));
+            consumer.poll(0);
+            consumer.seekToBeginning(consumer.assignment());
+            ConsumerRecords<String, String> records = consumer.poll(1000);
+            System.out.println("\n INBOX FOR "+name+" :");
             for (ConsumerRecord<String, String> record : records) {
-                System.out.println(record.value());
+                System.out.println("> "+record.value());
             }
-        } catch (Exception e){ e.printStackTrace();}
+        }
         finally { consumer.close();}
     }
 
