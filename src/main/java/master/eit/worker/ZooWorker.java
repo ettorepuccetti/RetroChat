@@ -90,7 +90,7 @@ public class ZooWorker implements Runnable{
     public void watchQuittingNodes () throws KeeperException, InterruptedException, UnsupportedEncodingException {
         QuitWorkerWatcher qww = new QuitWorkerWatcher(this);
         Thread qwThread = new Thread(qww);
-        qwThread.setName("QuittingNodes worker watcher");
+        qwThread.setName("Quitting Nodes worker watcher");
         qwThread.start();
         byte[] bdata = zoo.getData("/request/quit/" + name, qww, null);
         String data = new String(bdata, "UTF-8");
@@ -121,10 +121,11 @@ public class ZooWorker implements Runnable{
         }
     }
 
-    
+
+    // TODO: I don't have to check for existing topic but for nodes under /online
     public void printTopic () throws InterruptedException {
         try {
-            List<String> topics = zoo.getChildren("/brokers/topics", true);
+            List<String> topics = zoo.getChildren("/online", true);
             Iterator<String> topicsIterator = topics.iterator();
             System.out.println("\nONLINE CLIENTS:");
             while (topicsIterator.hasNext()) {
@@ -137,49 +138,63 @@ public class ZooWorker implements Runnable{
         }
     }
 
-    public void sendMessages () throws InterruptedException {
-        this.messageScanner = new Scanner(System.in);
-        System.out.println("\n Choose the USER. Enter \"--list\" for viewing online users ");
-        String topic = messageScanner.nextLine();
-        while (topic.equals("--list")) {
-            // calling function to print online users
-            printTopic();
-            topic = messageScanner.nextLine();
+    public void sendMessages () throws InterruptedException, KeeperException {
+        Stat onlineSender = zoo.exists("/online/" + name, true);
+        if (onlineSender!=null) {
+            this.messageScanner = new Scanner(System.in);
+            System.out.println("\n Choose the USER. Enter \"--list\" for viewing online users \n");
+            String topic = messageScanner.nextLine();
+            while (topic.equals("--list")) {
+                printTopic();
+                topic = messageScanner.nextLine();
+            }
+            while (topic.equals("")) {
+                System.out.println(" - empty line not allowed - ");
+                printTopic();
+                topic = messageScanner.nextLine();
+            }
+            Stat onlineRiceiver = zoo.exists("/online/" + topic, true);
+            if (onlineRiceiver!=null) {
+                System.out.println("\nEnter MESSAGEs to " + topic + ". Enter \"--quit\" for closing \n");
+                String message = messageScanner.nextLine();
+                KafkaProducer<String, String> kafkaProducer = createProducer();
+                while (!message.equals("--quit")) {
+                    kafkaProducer.send(new ProducerRecord<String, String>(topic, message));
+                    message = messageScanner.nextLine();
+                }
+                kafkaProducer.close();
+            } else {
+                System.out.println("\n ! THE SELECTED USER IS NOT ONLINE ! \n please select an online user ");
+            }
+        } else {
+            System.out.println("\n ! YOU ARE NOT ONLINE ! \n please go online before sending messages");
         }
-
-        // todo: check if the selected user is online
-
-        System.out.println("\nEnter MESSAGEs to " + topic + ". Enter \"--quit\" for closing ");
-        String message = messageScanner.nextLine();
-        KafkaProducer<String, String> kafkaProducer = createProducer();
-        while (!message.equals("--quit")) {
-            kafkaProducer.send(new ProducerRecord<String, String>(topic, message));
-            message = messageScanner.nextLine();
-        }
-        kafkaProducer.close();
     }
 
-    public void readMessages () {
-        Properties props = new Properties();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,"localhost:9092,localhost:9093,localhost:9094");
-        props.put("group.id", name);
-        props.put("enable.auto.commit", "false");
-        // props.put("auto.commit.interval.ms","1000");
-        // props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        props.put("key.deserializer","org.apache.kafka.common.serialization.StringDeserializer");
-        props.put("value.deserializer","org.apache.kafka.common.serialization.StringDeserializer");
-        KafkaConsumer<String, String> consumer = new KafkaConsumer<String, String>(props);
-        try {
-            consumer.subscribe(Collections.singletonList(name));
-            consumer.poll(0);
-            consumer.seekToBeginning(consumer.assignment());
-            ConsumerRecords<String, String> records = consumer.poll(1000);
-            System.out.println("\n INBOX FOR "+name+" :");
-            for (ConsumerRecord<String, String> record : records) {
-                System.out.println("> "+record.value());
+    public void readMessages () throws KeeperException, InterruptedException {
+        Stat onlineReader = zoo.exists("/online/" + name, true);
+        if (onlineReader!=null) {
+            Properties props = new Properties();
+            props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,"localhost:9092,localhost:9093,localhost:9094");
+            props.put("group.id", name);
+            props.put("enable.auto.commit", "false");
+            props.put("key.deserializer","org.apache.kafka.common.serialization.StringDeserializer");
+            props.put("value.deserializer","org.apache.kafka.common.serialization.StringDeserializer");
+            KafkaConsumer<String, String> consumer = new KafkaConsumer<String, String>(props);
+            try {
+                consumer.subscribe(Collections.singletonList(name));
+                consumer.poll(0);
+                consumer.seekToBeginning(consumer.assignment());
+                ConsumerRecords<String, String> records = consumer.poll(1000);
+                System.out.println("\n INBOX FOR "+name+" :");
+                for (ConsumerRecord<String, String> record : records) {
+                    System.out.println("> "+record.value());
+                }
             }
+            finally { consumer.close();}
+        } else {
+            System.out.println("\n ! YOU ARE NOT ONLINE ! \n please go online for reading your inbox");
         }
-        finally { consumer.close();}
     }
 
 
@@ -242,8 +257,12 @@ public class ZooWorker implements Runnable{
                     continue;
                 }
             }
-            in.close();
-            messageScanner.close();
+            try {
+                in.close();
+                this.messageScanner.close();
+            } catch (Exception e) {
+                System.exit(0);
+            }
         }
         catch (Exception e) {
             e.printStackTrace();

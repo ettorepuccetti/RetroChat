@@ -12,12 +12,10 @@ public class OnlineWorkerWatcher {
 
     public OnlineWorkerWatcher(ZooWorker zoo) {
         this.zw = zoo;
-        System.out.println("Online worker watcher set");
     }
 
     public void process(WatchedEvent we) {
         if (we.getType() == Watcher.Event.EventType.NodeDataChanged) {
-            System.out.println("Online worker watcher triggered");
             try {
                 zw.removeQuit();
             } catch (KeeperException e) {
@@ -36,7 +34,6 @@ public class OnlineWorkerWatcher {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-            System.out.println("Online worker watcher ends");
         }
     }
 }

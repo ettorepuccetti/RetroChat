@@ -1,0 +1,10 @@
+/home/parallels/maven-projects/zookeeper/src/main/java/master/eit/worker/OnlineWorkerWatcher.java
+/home/parallels/maven-projects/zookeeper/src/main/java/master/eit/worker/QuitWorkerWatcher.java
+/home/parallels/maven-projects/zookeeper/src/main/java/master/eit/manager/ZooManager.java
+/home/parallels/maven-projects/zookeeper/src/main/java/master/eit/worker/MainWorker.java
+/home/parallels/maven-projects/zookeeper/src/main/java/master/eit/manager/MainManager.java
+/home/parallels/maven-projects/zookeeper/src/main/java/master/eit/manager/OnlineManagerWatcher.java
+/home/parallels/maven-projects/zookeeper/src/main/java/master/eit/worker/RegisterWorkerWatcher.java
+/home/parallels/maven-projects/zookeeper/src/main/java/master/eit/manager/RegisterManagerWatcher.java
+/home/parallels/maven-projects/zookeeper/src/main/java/master/eit/manager/QuitManagerWatcher.java
+/home/parallels/maven-projects/zookeeper/src/main/java/master/eit/worker/ZooWorker.java

@@ -17,13 +17,10 @@ public class QuitManagerWatcher implements Watcher, Runnable {
 
     public QuitManagerWatcher(ZooManager zoo) {
         this.zm = zoo;
-        System.out.println("Quit Manager Watcher set");
-
     }
 
     public void process(WatchedEvent we) {
         if (we.getType() == EventType.NodeChildrenChanged) {
-            System.out.println("Quit Manager Watcher triggered !!");
             try {
                 zm.quit();
             } catch (KeeperException e) {
@@ -42,7 +39,6 @@ public class QuitManagerWatcher implements Watcher, Runnable {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-            System.out.println("Manager Watcher Quit thread ends");
         }
     }
 }

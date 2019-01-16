@@ -17,13 +17,11 @@ public class RegisterWorkerWatcher implements Watcher, Runnable {
 
     public RegisterWorkerWatcher(ZooWorker zoo) {
         this.zw = zoo;
-        System.out.println("Register Worker Watcher set");
 
     }
 
     public void process(WatchedEvent we) {
         if (we.getType() == EventType.NodeDataChanged) {
-            System.out.println("Register Worker Watcher triggered !!");
             try {
                 zw.removeRequest();
             } catch (KeeperException e) {
@@ -42,7 +40,6 @@ public class RegisterWorkerWatcher implements Watcher, Runnable {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-            System.out.println("Register Watcher thread ends");
         }
     }
 }

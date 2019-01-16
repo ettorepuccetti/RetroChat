@@ -1,0 +1,12 @@
+master/eit/worker/MainWorker.class
+master/eit/manager/ZooManager$1.class
+master/eit/worker/QuitWorkerWatcher.class
+master/eit/manager/OnlineManagerWatcher.class
+master/eit/manager/RegisterManagerWatcher.class
+master/eit/manager/ZooManager.class
+master/eit/worker/ZooWorker$1.class
+master/eit/manager/QuitManagerWatcher.class
+master/eit/worker/RegisterWorkerWatcher.class
+master/eit/worker/OnlineWorkerWatcher.class
+master/eit/manager/MainManager.class
+master/eit/worker/ZooWorker.class

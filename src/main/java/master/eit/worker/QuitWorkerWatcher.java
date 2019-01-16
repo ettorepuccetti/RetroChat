@@ -13,13 +13,11 @@ public class QuitWorkerWatcher implements Watcher, Runnable {
 
     public QuitWorkerWatcher(ZooWorker zoo) {
         this.zw = zoo;
-        System.out.println("Quit worker watcher set");
 
     }
 
     public void process(WatchedEvent we) {
         if (we.getType() == Watcher.Event.EventType.NodeDataChanged) {
-            System.out.println("Quit worker Watcher triggered !!");
             try {
                 zw.removeQuit();
             } catch (KeeperException e) {
@@ -38,7 +36,6 @@ public class QuitWorkerWatcher implements Watcher, Runnable {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-            System.out.println("Quit watcher thread ends");
         }
     }
 }
