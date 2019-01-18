@@ -244,6 +244,7 @@ public class ZooWorker implements Runnable{
                     default:
                         break;
                 }
+                Thread.sleep(1500);
                 System.out.println("\nusage:\n 1 - register \n 2 - go online \n 3 - quit \n 4 - send messages");
                 System.out.println(" 5 - watch online clients \n 6 - read my messages \n 0 - exit\n");
                 try {
