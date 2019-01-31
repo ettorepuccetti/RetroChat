@@ -110,14 +110,21 @@ public class ZooWorker implements Runnable{
     public void removeQuit () throws KeeperException, InterruptedException {
         int version_delete = zoo.exists("/request/quit/" + name, true).getVersion();
         zoo.delete("/request/quit/" + name, version_delete);
+        int version_online = zoo.exists("/online/" + name, true).getVersion();
+        zoo.delete("/online/" + name, version_online);
     }
 
     public void createOnlineNode() throws KeeperException, InterruptedException {
         Stat online = zoo.exists("/online/"+name, null);
-        if (online == null) {
-            zoo.create("/online/" + name, "-1".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+        Stat stat_registry = zoo.exists("/registry/" + name, true);
+        if (stat_registry == null) {
+            System.out.println("CLIENT "+name+" NOT REGISTERED YET...");
         } else {
-            System.out.println("CLIENT "+name+" ALREADY ONLINE !");
+            if (online == null) {
+                zoo.create("/online/" + name, "-1".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+            } else {
+                System.out.println("CLIENT "+name+" ALREADY ONLINE !");
+            }
         }
     }
 
@@ -203,16 +210,17 @@ public class ZooWorker implements Runnable{
             int number_code = 99; // so if it initially fail to scan the value from System.in, it loop on the while and it try again.
             String s;
             Scanner in = new Scanner(System.in);
-            
-            System.out.println("\nusage:\n 1 - register \n 2 - go online \n 3 - quit \n 4 - send messages");
+            System.out.println("\nWelcome "+name+",\nusage: \n 1 - register \n 2 - go online \n 3 - quit \n 4 - send messages");
             System.out.println(" 5 - watch online clients \n 6 - read my messages \n 0 - exit\n");            
             try {
                 s = in.nextLine();
                 number_code = Integer.parseInt(s); 
             } catch (NumberFormatException e) {
-                e.printStackTrace();
+                System.out.println("not valid choice");
+                //e.printStackTrace();
             } catch (NoSuchElementException e) {
-                e.printStackTrace();
+                System.out.println("not valid choice");
+                //e.printStackTrace();
             }
 
             while (number_code != 0) {
@@ -242,19 +250,22 @@ public class ZooWorker implements Runnable{
                         readMessages();
                         break;
                     default:
+                        System.out.println("not valid choice");
                         break;
                 }
                 Thread.sleep(1500);
-                System.out.println("\nusage:\n 1 - register \n 2 - go online \n 3 - quit \n 4 - send messages");
+                System.out.println("\nWelcome "+name+",\nusage: \n 1 - register \n 2 - go online \n 3 - quit \n 4 - send messages");
                 System.out.println(" 5 - watch online clients \n 6 - read my messages \n 0 - exit\n");
                 try {
                     s = in.nextLine();
                     number_code = Integer.parseInt(s); 
                 } catch (NumberFormatException e) {
+                    System.out.println("not valid choice");
                     number_code = 99;
                     continue;
                 } catch (NoSuchElementException e) {
-                    e.printStackTrace();
+                    System.out.println("not valid choice");
+                    //e.printStackTrace();
                     continue;
                 }
             }
